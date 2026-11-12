@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sukanya Stores - Shop Daily Calculator</title>
+<style>
+:root{--bg:#101522;--panel:#1b2435;--panel2:#253149;--text:#f4f7fb;--muted:#9eacc2;--accent:#6ee7b7;--orange:#ffb86b;--danger:#ff7185}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#0c1220,#17243a);color:var(--text);font-family:system-ui,-apple-system,Arial,sans-serif;padding:16px}
+.app{max-width:520px;margin:auto}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:8px 0 16px}.top h1{font-size:22px;margin:0}.sub{color:var(--muted);font-size:13px;margin-top:4px}
+.panel{background:var(--panel);border:1px solid #34415a;border-radius:22px;padding:16px;margin-bottom:14px;box-shadow:0 12px 30px #0003}
+label{display:block;color:var(--muted);font-size:13px;margin-bottom:7px}input[type=date],input[type=month],input[type=text]{width:100%;background:#111a29;color:var(--text);border:1px solid #3b4a64;border-radius:12px;padding:12px;font:inherit}
+.display{background:#101827;border-radius:16px;padding:15px;margin:14px 0;text-align:right;min-height:105px;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+#expression{font-size:22px;min-height:32px;overflow-wrap:anywhere}#live{font-size:30px;color:var(--accent);font-weight:700;overflow-wrap:anywhere}.hint{font-size:11px;color:var(--muted);margin-top:5px}
+.keys{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.keys button{border:0;border-radius:14px;padding:15px 5px;background:var(--panel2);color:var(--text);font-size:20px;font-weight:600;min-height:54px}.keys button.op{color:var(--orange);background:#3a3040}.keys button.action{color:var(--danger)}.keys button.equal{background:var(--accent);color:#08251b}.keys button:active,button:active{transform:scale(.97)}
+.row{display:flex;gap:9px}.row button,.smallbtn{border:0;border-radius:10px;padding:9px 12px;background:#34435d;color:white;font-weight:600}.summary{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.stat{background:#111a29;padding:13px;border-radius:14px}.stat small{color:var(--muted)}.stat strong{display:block;font-size:21px;margin-top:4px;color:var(--accent)}
+.entry{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid #34415a}.entry:last-child{border:0}.entry .amount{font-size:17px;font-weight:700}.entry .expr{font-size:12px;color:var(--muted);overflow-wrap:anywhere}.entry-actions{display:flex;gap:6px}.entry-actions button{border:0;border-radius:8px;padding:7px 9px;background:#34435d;color:white}.entry-actions .del{color:#ff9aaa}.empty{color:var(--muted);text-align:center;padding:18px 0}.sectionhead{display:flex;justify-content:space-between;align-items:center;gap:10px}.sectionhead h2{font-size:17px;margin:0}.monthline{color:var(--text);font-size:22px;font-weight:800;margin-top:22px;padding-top:14px;border-top:1px solid #34415a;line-height:1.5}.month-tools{display:grid;grid-template-columns:1fr auto;gap:9px;align-items:center;margin-top:12px}.month-tools input{min-width:0;background:#111a29;color:var(--text);border:1px solid #3b4a64;border-radius:12px;padding:11px;font:inherit}.month-toggle{border:0;border-radius:12px;background:#34435d;color:white;padding:11px 15px;font-size:18px}.month-days{margin-top:10px}.month-day{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid #34415a}.month-day:last-child{border:0}.month-day small{display:block;color:var(--muted);font-size:11px;margin-top:3px}.month-day strong{white-space:nowrap}.foot{color:var(--muted);font-size:11px;text-align:center;margin:16px 4px}
+</style>
+</head>
+<body>
+<div class="app">
+ <div class="top"><div><h1>Sukanya Stores</h1><div class="sub">Shop Daily Calculator</div></div><span>🧾</span></div>
+ <section class="panel">
+  <label for="workDate">Date</label>
+  <input id="workDate" type="date">
+  <div class="display"><div id="expression">0</div><div id="live">0</div></div>
+  <div class="keys" id="keys">
+   <button class="action" data-key="AC">AC</button><button data-key="back">⌫</button><button class="op" data-key="%">%</button><button class="op" data-key="/">÷</button>
+   <button data-key="7">7</button><button data-key="8">8</button><button data-key="9">9</button><button class="op" data-key="*">×</button>
+   <button data-key="4">4</button><button data-key="5">5</button><button data-key="6">6</button><button class="op" data-key="-">−</button>
+   <button data-key="1">1</button><button data-key="2">2</button><button data-key="3">3</button><button class="op" data-key="+">+</button>
+   <button data-key="00">00</button><button data-key="0">0</button><button data-key=".">.</button><button class="equal" data-key="=">=</button>
+  </div>
+  <div class="row" style="margin-top:9px"><button style="flex:1" data-key="square">x²</button><button style="flex:1" data-key="clear">Clear</button></div>
+ </section>
+ <section class="panel">
+  <div class="sectionhead"><h2 id="dayTitle">Daily Entries</h2><button class="smallbtn" id="todayBtn">Today</button></div>
+  <div class="summary"><div class="stat"><small>Daily Total</small><strong id="dayTotal">₹0.00</strong></div><div class="stat"><small>Entry Count</small><strong id="entryCount">0</strong></div></div>
+  <div id="entries"></div>
+  <div class="monthline" id="monthTotal"></div>
+  <div class="month-tools">
+   <input id="monthPicker" type="month" aria-label="Select month">
+   <button class="month-toggle" id="monthToggle" type="button" aria-expanded="false" aria-label="Show monthly daily details">▼</button>
+  </div>
+  <div id="monthDays" class="month-days" hidden></div>
+ </section>
+ 
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const dateInput=$('workDate'), exprEl=$('expression'), liveEl=$('live');
+const monthPicker=$('monthPicker'), monthToggle=$('monthToggle'), monthDays=$('monthDays');
+let monthExpanded=false;
+let expr='';
+const KEY='shop_daily_accounts_v2';
+let db={}; try{db=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){db={}}
+const today=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
+dateInput.value=today();
+monthPicker.value=today().slice(0,7);
+function saveDB(){localStorage.setItem(KEY,JSON.stringify(db))}
+function fmt(n){return new Intl.NumberFormat('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n)}
+function safeCalc(s){
+ if(!s || !/^[0-9.+\-*/()%\s]+$/.test(s)) throw Error('Invalid');
+ let t=s.replace(/(\d+(?:\.\d+)?)%/g,'($1/100)');
+ // A small recursive-descent parser; no eval().
+ let i=0;
+ function ws(){while(t[i]===' ')i++}
+ function factor(){ws();let sign=1;if(t[i]==='+')i++;else if(t[i]==='-'){sign=-1;i++}
+  ws();let v;if(t[i]==='('){i++;v=add();ws();if(t[i]!==')')throw Error(')');i++}
+  else{let m=t.slice(i).match(/^(?:\d+\.?\d*|\.\d+)/);if(!m)throw Error('number');v=Number(m[0]);i+=m[0].length}
+  return sign*v}
+ function mul(){let v=factor();while(true){ws();let op=t[i];if(op!=='*'&&op!=='/')break;i++;let b=factor();if(op==='/'&&b===0)throw Error('zero');v=op==='*'?v*b:v/b}return v}
+ function add(){let v=mul();while(true){ws();let op=t[i];if(op!=='+'&&op!=='-')break;i++;let b=mul();v=op==='+'?v+b:v-b}return v}
+ let result=add();ws();if(i!==t.length||!Number.isFinite(result))throw Error('bad');return result;
+}
+function update(){exprEl.textContent=expr||'0';try{let n=safeCalc(expr);liveEl.textContent=fmt(n)}catch(e){liveEl.textContent=expr?'—':'0'}}
+function addKey(k){
+ if(k==='AC'||k==='clear'){expr='';update();return}
+ if(k==='back'){expr=expr.slice(0,-1);update();return}
+ if(k==='square'){if(!expr)return;try{expr='('+expr+')*('+expr+')'}catch(e){}update();return}
+ if(k==='='){commit();return}
+ if(/[+\-*/]/.test(k)){
+  if(!expr && k!=='-')return;
+  if(/[+\-*/]$/.test(expr))expr=expr.slice(0,-1);
+ }
+ if(k==='.' ){let last=expr.split(/[+\-*/()%]/).pop();if(last.includes('.'))return;if(!last)k='0.'}
+ expr+=k;update();
+}
+function commit(){
+ if(!expr)return;
+ try{let amount=safeCalc(expr);if(!Number.isFinite(amount))throw Error();
+  let date=dateInput.value||today();db[date]=db[date]||[];
+  db[date].push({id:Date.now()+Math.random(),expression:expr,amount});
+  saveDB();expr='';update();render();
+ }catch(e){liveEl.textContent=e.message==='zero'?'Cannot divide by zero':'Invalid calculation';}
+}
+$('keys').addEventListener('click',e=>{let b=e.target.closest('button');if(b)addKey(b.dataset.key)});
+document.querySelector('[data-key="square"]').addEventListener('click',()=>addKey('square'));
+document.querySelector('[data-key="clear"]').addEventListener('click',()=>addKey('clear'));
+dateInput.addEventListener('change',()=>{expr='';update();if(dateInput.value)monthPicker.value=dateInput.value.slice(0,7);render()});
+monthPicker.addEventListener('change',()=>renderMonth());
+monthToggle.addEventListener('click',()=>{monthExpanded=!monthExpanded;renderMonth()});
+$('todayBtn').onclick=()=>{dateInput.value=today();
+monthPicker.value=today().slice(0,7);expr='';update();render()};
+function render(){
+ const date=dateInput.value||today(),items=db[date]||[];
+ $('dayTitle').textContent=new Date(date+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})+' - Daily Entries';
+ $('dayTotal').textContent='₹'+fmt(items.reduce((a,x)=>a+Number(x.amount),0));
+ $('entryCount').textContent=items.length;
+ const wrap=$('entries');wrap.innerHTML='';
+ if(!items.length){wrap.innerHTML='<div class="empty">No entries for this date yet.</div>'}
+ items.forEach((it,index)=>{
+  const div=document.createElement('div');div.className='entry';
+  const left=document.createElement('div');left.style.minWidth='0';
+  const amount=document.createElement('div');amount.className='amount';amount.textContent='₹'+fmt(it.amount);
+  const exp=document.createElement('div');exp.className='expr';exp.textContent=(index+1)+'. '+it.expression;
+  left.append(amount,exp);
+  const actions=document.createElement('div');actions.className='entry-actions';
+  const edit=document.createElement('button');edit.textContent='Edit';edit.onclick=()=>{let v=prompt('Edit calculation',it.expression);if(v===null)return;try{let n=safeCalc(v);it.expression=v;it.amount=n;saveDB();render()}catch(e){alert('Enter a valid calculation. Division by zero is not allowed.')}};
+  const del=document.createElement('button');del.textContent='Delete';del.className='del';del.onclick=()=>{if(confirm('Delete this entry?')){items.splice(index,1);if(!items.length)delete db[date];saveDB();render()}};
+  actions.append(edit,del);div.append(left,actions);wrap.append(div);
+ });
+ if(!monthPicker.value)monthPicker.value=date.slice(0,7);
+ renderMonth();
+}
+function renderMonth(){
+ const month=monthPicker.value||today().slice(0,7);
+ let total=0,count=0;const days=[];
+ Object.entries(db).filter(([d,list])=>d.startsWith(month)&&Array.isArray(list)&&list.length)
+  .sort(([a],[b])=>a.localeCompare(b)).forEach(([d,list])=>{
+   const dayTotal=list.reduce((sum,item)=>sum+Number(item.amount||0),0);
+   total+=dayTotal;count+=list.length;days.push({date:d,total:dayTotal,count:list.length});
+  });
+ const monthName=new Date(month+'-01T00:00:00').toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+ $('monthTotal').textContent=monthName+' — Monthly Total: ₹'+fmt(total)+' • '+count+' entries';
+ monthDays.innerHTML='';
+ if(!days.length){monthDays.innerHTML='<div class="empty">No entries for this month yet.</div>'}
+ days.forEach(day=>{
+  const row=document.createElement('div');row.className='month-day';
+  const info=document.createElement('div');
+  const dateLabel=document.createElement('div');dateLabel.textContent=new Date(day.date+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',weekday:'short'});
+  const sub=document.createElement('small');sub.textContent=day.count+' entries';info.append(dateLabel,sub);
+  const amount=document.createElement('strong');amount.textContent='₹'+fmt(day.total);
+  row.append(info,amount);monthDays.append(row);
+ });
+ monthDays.hidden=!monthExpanded;monthToggle.textContent=monthExpanded?'▲':'▼';monthToggle.setAttribute('aria-expanded',String(monthExpanded));
+}
+document.addEventListener('keydown',e=>{
+ if(e.target===dateInput)return;
+ if(/^[0-9.]$/.test(e.key)){addKey(e.key);e.preventDefault()}
+ else if(['+','-','*','/','%'].includes(e.key)){addKey(e.key);e.preventDefault()}
+ else if(e.key==='Enter'||e.key==='='){addKey('=');e.preventDefault()}
+ else if(e.key==='Backspace'){addKey('back');e.preventDefault()}
+ else if(e.key==='Escape'){addKey('AC');e.preventDefault()}
+});
+update();render();
+</script>
+</body></html>
